@@ -1,0 +1,155 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+  <configSections>
+    <section name="unity" type="Microsoft.Practices.Unity.Configuration.UnityConfigurationSection, Microsoft.Practices.Unity.Configuration" />
+  </configSections>
+  <eis id="BEAM">
+    <fileSystem domain="domain" username="username" password="password">
+      <input>
+        <directories>
+          <add id="root" value="D:\Temp\Vector_FS\BEAM\IN" />
+          <add id="dump" value="D:\Temp\Vector_FS\BEAM\IN\DUMP" />
+          <add id="blackList" value="D:\Temp\Vector_FS\BEAM\IN\BLACK_LIST" />
+        </directories>
+        <files zip="true" />
+      </input>
+      <output>
+        <directories>
+          <add id="root" value="D:\Temp\Vector_FS\BEAM\OUT" />
+        </directories>
+        <files zip="false" />
+      </output>
+    </fileSystem>
+  </eis>
+  <eis id="BEAM2">
+    <fileSystem>
+      <input>
+        <directories>
+          <add id="root" value="D:\Temp\Vector_FS\BEAM2\IN" />
+          <add id="dump" value="D:\Temp\Vector_FS\BEAM2\IN\DUMP" />
+          <add id="blackList" value="D:\Temp\Vector_FS\BEAM2\IN\BLACK_LIST" />
+        </directories>
+        <files zip="true" />
+      </input>
+      <output>
+        <directories>
+          <add id="root" value="D:\Temp\Vector_FS\BEAM2\OUT" />
+        </directories>
+        <files zip="false" />
+      </output>
+    </fileSystem>
+  </eis>
+  <unity>
+    <typeAliases>
+      <!-- Abstractions -->
+      <typeAlias alias="RulesParsing" type="Eng.Vector.Domain.Abstractions.IRulesParsing, Eng.Vector.Domain" />
+      <typeAlias alias="FileValidation" type="Eng.IO.IFileValidation, Eng.IO" />
+      <typeAlias alias="DbConnectionParameters" type="Eng.Data.IDbConnectionParameters, Eng.Data" />
+      <typeAlias alias="TransferInputRepository" type="Eng.Vector.Domain.Repositories.ITransferInputRepository, Eng.Vector.Domain" />
+      <typeAlias alias="TransferOutputRepository" type="Eng.Vector.Domain.Repositories.ITransferOutputRepository, Eng.Vector.Domain" />
+      <typeAlias alias="CheckingRepository" type="Eng.Vector.Domain.Repositories.ICheckingRepository, Eng.Vector.Domain" />
+      <!-- Implementations -->
+      <typeAlias alias="PositionalRulesParser" type="Eng.Vector.Engine.Parsing.PositionalRulesParser, Eng.Vector.Engine" />
+      <typeAlias alias="PlaceholderRulesParser" type="Eng.Vector.Engine.Parsing.PlaceholderRulesParser, Eng.Vector.Engine" />
+      <typeAlias alias="ContainsRulesParser" type="Eng.Vector.Engine.Parsing.ContainsRulesParser, Eng.Vector.Engine" />
+      <typeAlias alias="TextValidator" type="Eng.Vector.Engine.Validation.TextValidator, Eng.Vector.Engine" />
+      <typeAlias alias="FileFormatValidator" type="Eng.Vector.Engine.Validation.FileFormatValidator, Eng.Vector.Engine" />
+      <typeAlias alias="DefaultDbConnectionParameters" type="Eng.Data.DefaultDbConnectionParameters, Eng.Data" />
+      <typeAlias alias="OracleTransferInputRepository" type="Eng.Vector.Data.Oracle.TransferInputRepository, Eng.Vector.Data.Oracle" />
+      <typeAlias alias="OracleTransferOutputRepository" type="Eng.Vector.Data.Oracle.TransferOutputRepository, Eng.Vector.Data.Oracle" />
+    </typeAliases>
+    <!-- Containers -->
+    <containers>
+      <!-- DB -->
+      <container name="db">
+        <type type="DbConnectionParameters" mapTo="DefaultDbConnectionParameters" name="DefaultOracleDbConnectionParameters">
+          <property name="ConnectionString">
+            <value value="Data Source=(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=161.27.160.191)(PORT=1521)))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=SVILDIS)));User Id=MDM;Password=MDM" />
+          </property>
+        </type>
+        <type type="TransferInputRepository" mapTo="OracleTransferInputRepository">
+          <constructor>
+            <param name="connectionParameters">
+              <dependency name="DefaultOracleDbConnectionParameters" />
+            </param>
+          </constructor>
+        </type>
+        <type type="TransferInputRepository" mapTo="OracleTransferInputRepository">
+          <constructor>
+            <param name="connectionParameters">
+              <dependency name="DefaultOracleDbConnectionParameters" />
+            </param>
+          </constructor>
+        </type>
+        <type type="CheckingRepository" mapTo="OracleTransferOutputRepository">
+          <constructor>
+            <param name="connectionParameters">
+              <dependency name="DefaultOracleDbConnectionParameters" />
+            </param>
+          </constructor>
+        </type>
+      </container>
+      <!-- beam -->
+      <container name="beam">
+        <type type="TransferInputRepository" mapTo="OracleTransferInputRepository">
+          <constructor>
+            <param name="connectionParameters">
+              <dependency name="DefaultOracleDbConnectionParameters" />
+            </param>
+          </constructor>
+        </type>
+        <type type="TransferOutputRepository" mapTo="OracleTransferOutputRepository">
+          <constructor>
+            <param name="connectionParameters">
+              <dependency name="DefaultOracleDbConnectionParameters" />
+            </param>
+          </constructor>
+        </type>
+      </container>
+      <!-- beam-input-files -->
+      <container name="beam-input-files">
+        <register type="RulesParsing" mapTo="ContainsRulesParser">
+          <property name="CandidateRules">
+            <array>
+              <value value="ACQLETBEAM" />
+              <value value="ACQPDR" />
+              <value value="ACQSTATCOM" />
+            </array>
+          </property>
+        </register>
+        <register type="FileValidation" mapTo="TextValidator" name="TextValidator" />
+        <register type="FileValidation" mapTo="FileFormatValidator" name="FileFormatValidator">
+          <constructor>
+            <param name="extensions">
+              <array>
+                <value value="CSV" />
+              </array>
+            </param>
+          </constructor>
+        </register>
+      </container>
+      <!-- beam2-input-files -->
+      <container name="beam2-input-files">
+        <register type="RulesParsing" mapTo="ContainsRulesParser">
+          <property name="CandidateRules">
+            <array>
+              <value value="ACQLETBEAM2" />
+              <value value="ACQPDRBEAM2" />
+            </array>
+          </property>
+        </register>
+        <register type="FileValidation" mapTo="TextValidator" name="TextValidator" />
+        <register type="FileValidation" mapTo="FileFormatValidator" name="FileFormatValidator">
+          <constructor>
+            <param name="extensions">
+              <array>
+                <value value="CSV" />
+              </array>
+            </param>
+          </constructor>
+        </register>
+      </container>
+    </containers>
+  </unity>
+</configuration>
