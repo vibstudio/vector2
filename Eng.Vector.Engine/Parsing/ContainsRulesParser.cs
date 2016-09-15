@@ -1,12 +1,12 @@
-﻿namespace Eng.Vector.Engine.Parsing
+﻿#region Namespaces
+
+using Eng.Vector.Domain.Abstractions;
+using Eng.Vector.Exceptions;
+
+#endregion
+
+namespace Eng.Vector.Engine.Parsing
 {
-    #region Namespaces
-
-    using Eng.Vector.Domain.Abstractions;
-    using Eng.Vector.Exceptions;
-
-    #endregion
-
     public class ContainsRulesParser : IRulesParsing
     {
         #region IRulesParsing implementation
