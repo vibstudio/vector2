@@ -187,8 +187,7 @@ namespace Eng.Vector.Engine.Transfer
                             Helper.Factory.Of.Vector.FileMoving.Reject(networkCredentials,
                                                                        directoryInfo,
                                                                        filePath,
-                                                                       rejectedFile,
-                                                                       file => repository.NotifyTransferState(rejectedFile));
+                                                                       () => repository.NotifyTransferState(rejectedFile));
                         }
                         catch (Exception exception2)
                         {
@@ -212,8 +211,7 @@ namespace Eng.Vector.Engine.Transfer
                         Helper.Factory.Of.Vector.FileMoving.Reject(networkCredentials,
                                                                    directoryInfo,
                                                                    filePath,
-                                                                   rejectedFile,
-                                                                   file => repository.NotifyTransferState(rejectedFile));
+                                                                   () => repository.NotifyTransferState(rejectedFile));
                     }
                     catch (Exception exception2)
                     {

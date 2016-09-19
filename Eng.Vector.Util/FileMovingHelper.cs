@@ -7,7 +7,6 @@ using Eng.Diagnostic;
 using Eng.IO.Path;
 using Eng.Vector.Domain;
 using Eng.Vector.Domain.Model.Integration;
-using Eng.Vector.Domain.Model.Transfer;
 
 #endregion
 
@@ -26,8 +25,7 @@ namespace Eng.Vector.Util
         void Reject(TransferNetworkCredentials networkCredentials,
                     TransferDirectoryInfo directoryInfo,
                     FilePath file,
-                    TransferMessageFile messageFile,
-                    Action<TransferMessageFile> notifiyTransfer);
+                    Action notifiyTransfer);
     }
 
     internal class FileMovingHelper : IFileMovingHelper
@@ -95,12 +93,11 @@ namespace Eng.Vector.Util
         public void Reject(TransferNetworkCredentials networkCredentials,
                            TransferDirectoryInfo directoryInfo,
                            FilePath file,
-                           TransferMessageFile messageFile,
-                           Action<TransferMessageFile> notifiyTransfer)
+                           Action notifiyTransfer)
         {
             Reject(networkCredentials, directoryInfo, file);
 
-            notifiyTransfer(messageFile);
+            notifiyTransfer();
         }
     }
 }
